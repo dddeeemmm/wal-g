@@ -1,0 +1,8 @@
+---
+
+- include: asserts.yml
+
+- include: install.yml
+  when: walg_install | bool
+
+- include: config.yml

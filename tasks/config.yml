@@ -1,0 +1,35 @@
+---
+
+- name: make config dir
+  file:
+    path: /etc/wal-g.d/env
+    state: directory
+
+- name: copy wal-g settings files
+  template:
+    src: '{{ item }}'
+    dest: /etc/wal-g.d/env/{{ item }}
+    owner: postgres
+    group: postgres
+    mode: 0644
+  with_items:
+    - AWS_ACCESS_KEY_ID
+    - AWS_ENDPOINT
+    - AWS_REGION
+    - AWS_SECRET_ACCESS_KEY
+    - WALG_S3_PREFIX
+
+- name: add archive command
+  lineinfile:
+    path: /var/lib/pgsql/{{ walg_postgresql_version }}/data/postgresql.conf
+    line: '{{ item }}'
+  with_items: '{{ walg_postgres_config }}'
+  when: walg_archive_command | bool
+
+- name: create daily backup cronjob
+  cron:
+    name: daily postgres backup
+    special_time: daily
+    user: postgres
+    job: envdir /etc/wal-g.d/env /usr/local/bin/wal-g backup-push /var/lib/pgsql/{{ walg_postgresql_version }}/data
+  when: walg_cronjob | bool

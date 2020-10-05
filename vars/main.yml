@@ -1,0 +1,12 @@
+---
+
+walg_release_url: https://api.github.com/repos/wal-g/wal-g/releases/latest
+
+walg_postgres_config:
+  - '# wal-g'
+  - 'archive_mode = yes'
+  - "archive_command = 'envdir /etc/wal-g.d/env /usr/local/bin/wal-g wal-push /var/lib/pgsql/{{ walg_postgresql_version }}/data'"
+  - 'archive_timeout = 60'
+
+walg_crontab_task_centos: envdir /etc/wal-g.d/env /usr/local/bin/wal-g backup-push /var/lib/pgsql/{{ walg_postgresql_version }}/data
+

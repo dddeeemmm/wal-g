@@ -1,0 +1,44 @@
+---
+
+- name: set package architecture
+  set_fact:
+    walg_pkg_arch: "{{ 'amd64' if ansible_architecture == 'x86_64' else ansible_architecture }}"
+
+- name: get wal-g latest url
+  uri:
+    url: '{{ walg_release_url }}'
+    body_format: json
+    return_content: true
+  changed_when: false
+  register: walg_latest
+
+- name: set walg_tar_gz url
+  set_fact:
+    walg_tar_gz: '{{ walg_latest.json | json_query (query) | first }}'
+  vars:
+    query: "assets[?name=='wal-g.linux-{{ walg_pkg_arch }}.tar.gz'].browser_download_url"
+
+- name: set walg_sha256 url
+  set_fact:
+    walg_sha256: "{{ walg_latest.json | json_query(query) | first }}"
+  vars:
+    query: "assets[?name=='wal-g.linux-{{ walg_pkg_arch }}.tar.gz.sha256'].browser_download_url"
+
+- name: download wal-g.tar.gz
+  get_url:
+    url: '{{ walg_tar_gz }}'
+    dest: '{{ ansible_env.HOME }}'
+    checksum: sha256:{{ walg_sha256 }}
+  register: walg_download
+
+- name: install wal-g binary
+  unarchive:
+    src: '{{ walg_download.dest }}'
+    dest: /usr/local/bin
+    remote_src: yes
+    creates: /usr/local/bin/wal-g
+  when: not walg_download.failed
+
+- name: install envdir
+  easy_install:
+    name: envdir

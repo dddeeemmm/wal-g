@@ -1,0 +1,6 @@
+---
+
+- name: fail for unsupported architecture
+  fail:
+    msg: unsupported arch {{ ansible_architecture }}
+  when: ansible_architecture != 'x86_64'

@@ -1,0 +1,11 @@
+---
+
+walg_install: true
+walg_archive_command: false
+walg_cronjob: false
+walg_postgresql_version:
+walg_aws_access_key_id: ''
+walg_aws_secret_access_key: ''
+walg_aws_s3_prefix: "s3://my-minio-bucket/sub-dir"
+walg_aws_endpoint: http://minio:9000
+walg_aws_region: ''
